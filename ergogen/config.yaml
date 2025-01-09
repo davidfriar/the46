@@ -1,0 +1,345 @@
+units:
+  offset_x: 100
+  offset_y: 100
+  kx: cx
+  ky: cy
+  pp: 2
+  thumb_angle: 24
+  thumb_shift: 2.5
+  pinky_stagger: ky*1/8
+  ring_stagger: ky*4/8
+  middle_stagger: ky*1/8
+  index_stagger: -ky*2/8
+  inner_stagger: -ky*2/8
+points:
+  key:
+    width: kx
+    height: ky
+  zones:
+    fingers:
+      anchor:
+        shift: [offset_x-kx/2, offset_y-(1.5ky+pinky_stagger+ring_stagger+middle_stagger)]
+      key:
+        padding: 1ky
+        spread: 1kx
+      columns:
+        outerleft:
+          key.asym: source
+          rows.bottom:
+            tags: large
+            adjust:
+              rotate: 90
+              shift: [0.5, -(0.25kx + 0.5)]
+          rows.thumb.skip: true
+          key.column_net: C1
+        outerright:
+          key.spread: 0
+          key.asym: clone
+          rows.top:
+            shift: [0, (0.25kx + 0.5)]
+          rows.middle:
+            tags: large
+            shift: [0, (0.25kx + 0.5)]
+            adjust:
+              rotate: 90
+              shift: [0.5, 0]
+          rows.bottom:
+            shift: [0, -(0.5kx + 1)]
+          rows.thumb.skip: true
+          key.mirror_column_net: C6
+        pinky:
+          key:
+            stagger: pinky_stagger
+            column_net: C2
+            mirror_column_net: C5
+        ring:
+          key:
+            stagger: ring_stagger
+            column_net: C3
+            mirror_column_net: C4
+        middle:
+          key:
+            stagger: middle_stagger
+            column_net: C4
+            mirror_column_net: C3
+        index:
+          key:
+            stagger: index_stagger
+            column_net: C5
+            mirror_column_net: C2
+        inner:
+          key:
+            stagger: inner_stagger
+            column_net: C6
+            mirror_column_net: C1
+          rows.thumb.adjust:
+            orient: -thumb_angle
+            shift: [thumb_shift, -thumb_shift]
+      rows:
+        thumb:
+          row_net: R1
+        bottom:
+          row_net: R2
+        middle:
+          row_net: R3
+        top:
+          row_net: R4
+    left_connector:
+      key.asym: source
+      anchor:
+        ref: fingers_middle_top
+        shift: [11/16kx, 0]
+    right_connector:
+      key.asym: clone
+      anchor:
+        ref: fingers_index_top
+        shift: [3kx/8, -ky/2]
+  mirror: &mirror
+    ref: fingers_inner_top
+    distance: 2.5kx
+outlines:
+  keys:
+    - what: rectangle
+      where: -large
+      size: [kx-0.5, ky-0.5]
+    - what: rectangle
+      where: large
+      size: [1.5kx-0.5, ky-0.5]
+  left_plate:
+    - what: rectangle
+      where: /^fingers.*/
+      size: [kx+2pp, ky+2pp]
+      fillet: 1
+    - what: rectangle
+      where: [[/^fingers.*/, large]]
+      size: [1.5kx+2pp, ky+2pp]
+      fillet: 1
+    - what: rectangle
+      where: fingers_inner_bottom
+      size: [kx+2pp, ky+2pp]
+      adjust:
+        shift: [0, -5]
+      fillet: 1
+    - what: rectangle
+      where: /^fingers.*/
+      size: [14, 14]
+      operation: subtract
+  right_plate:
+    - what: rectangle
+      where: /^mirror.fingers.*/
+      size: [kx+2pp, ky+2pp]
+      fillet: 1
+    - what: rectangle
+      where: [[/^mirror.fingers.*/, large]]
+      size: [1.5kx+2pp, ky+2pp]
+      fillet: 1
+    - what: rectangle
+      where: mirror_fingers_inner_bottom
+      size: [kx+2pp, ky+2pp]
+      adjust:
+        shift: [0, -5]
+      fillet: 1
+    - what: rectangle
+      where: /^mirror.fingers.*/
+      size: [14, 14]
+      operation: subtract
+  left_board:
+    - what: rectangle
+      where: [[/^fingers.*/, -large]]
+      size: [kx, ky]
+      fillet: 1
+    - what: rectangle
+      where: [[/^fingers.*/, large]]
+      size: [1.5kx, ky]
+      fillet: 1
+    - what: rectangle
+      where: fingers_inner_bottom
+      size: [kx, ky]
+      adjust:
+        shift: [0, -(ky-1)]
+      fillet: 1
+  right_board:
+    - what: rectangle
+      where: [[/^mirror.fingers.*/, -large]]
+      size: [kx, ky]
+      fillet: 1
+    - what: rectangle
+      where: [[/^mirror.fingers.*/, large]]
+      size: [1.5kx, ky]
+      fillet: 1
+    - what: rectangle
+      where: mirror_fingers_inner_bottom
+      size: [kx, ky]
+      adjust:
+        shift: [0, -(ky-1)]
+      fillet: 1
+  combo:
+    - name: left_plate
+    - operation: stack
+      name: left_board
+    - operation: stack
+      name: right_plate
+    - operation: stack
+      name: right_board
+    - operation: stack
+      name: keys
+pcbs:
+  left_pcb:
+    outlines:
+      main:
+        outline: left_board
+    footprints:
+      switch:
+        what: choc
+        where: /^fingers.*/
+        params:
+          keycaps: true
+          reverse: false
+          hotswap: false
+          from: "{{column_net}}"
+          to: "{{colrow}}"
+      diode:
+        what: smdDiode
+        where: /^fingers.*/
+        params:
+          side: B
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -5]
+      connector:
+        what: gctConnector
+        where: left_connector
+        params:
+          p1: GND
+          p2: R4
+          p3: R3
+          p4: R2
+          p5: R1
+          p6: C1
+          p7: C2
+          p8: C3
+          p9: C4
+          p10: C5
+          p11: C6
+          p12: GND
+          side: B
+      via1:
+        what: via
+        where: left_connector
+        adjust.shift: [0, 2.6]
+        params.net: C1
+      via2:
+        what: via
+        where: left_connector
+        adjust.shift: [0, 0]
+        params.net: C2
+      via3:
+        what: via
+        where: left_connector
+        adjust.shift: [1.5, 2.6]
+        params.net: C3
+      via4:
+        what: via
+        where: left_connector
+        adjust.shift: [1.5, 0]
+        params.net: C4
+      via5:
+        what: via
+        where: left_connector
+        adjust.shift: [3, 2.6]
+        params.net: C5
+      via6:
+        what: via
+        where: left_connector
+        adjust.shift: [3, 0]
+        params.net: C6
+  right_pcb:
+    outlines:
+      main:
+        outline: right_board
+    footprints:
+      switch:
+        what: choc
+        where: /^mirror.fingers.*/
+        params:
+          keycaps: true
+          reverse: false
+          hotswap: false
+          from: "{{mirror_column_net}}"
+          to: "{{colrow}}"
+      diode:
+        what: smdDiode
+        where: /^mirror.fingers.*/
+        params:
+          side: B
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -5]
+      # connector:
+      #   what: gctConnector
+      #   where: mirror_fingers_middle_top
+      #   adjust:
+      #     shift: [11/16kx, ky/16]
+      #   params:
+      #     p1: GND
+      #     p2: R1
+      #     p3: R2
+      #     p4: R3
+      #     p5: R4
+      #     p6: C1
+      #     p7: C2
+      #     p8: C3
+      #     p9: C4
+      #     p10: C5
+      #     p11: C6
+      #     p12: GND
+      #     side: B
+      connector:
+        what: gctConnector
+        where: mirror_right_connector
+        params:
+          p1: GND
+          p2: R4
+          p3: R3
+          p4: R2
+          p5: R1
+          p6: C1
+          p7: C2
+          p8: C3
+          p9: C4
+          p10: C5
+          p11: C6
+          p12: GND
+          side: B
+      via1:
+        what: via
+        where: mirror_right_connector
+        adjust.shift: [0, 2.6]
+        params.net: C1
+      via2:
+        what: via
+        where: mirror_right_connector
+        adjust.shift: [0, 0]
+        params.net: C2
+      via3:
+        what: via
+        where: mirror_right_connector
+        adjust.shift: [-1.5, 2.6]
+        params.net: C3
+      via4:
+        what: via
+        where: mirror_right_connector
+        adjust.shift: [-1.5, 0]
+        params.net: C4
+      via5:
+        what: via
+        where: mirror_right_connector
+        adjust.shift: [-3, 2.6]
+        params.net: C5
+      via6:
+        what: via
+        where: mirror_right_connector
+        adjust.shift: [-3, 0]
+        params.net: C6
