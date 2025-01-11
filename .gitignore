@@ -2,4 +2,4 @@
 /pcbs/right/right-backups
 /pcbs/left/left-backups
 *.lck
-
+*.stl
