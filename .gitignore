@@ -3,3 +3,6 @@
 /pcbs/left/left-backups
 *.lck
 *.stl
+/case/BOSL2
+*.tmp
+_autosave*

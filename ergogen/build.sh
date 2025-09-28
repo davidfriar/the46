@@ -1,15 +1,14 @@
 ergogen -d --clean . 
 
 
+# find the first use of 'segment' and copy from this line to the end of the file to a tmp file to preserve traces etc that have been added manually
 sed '/segment/, $w ../pcbs/left/traces-left.tmp' ../pcbs/left/left.kicad_pcb
 sed '/segment/, $w ../pcbs/right/traces-right.tmp' ../pcbs/right/right.kicad_pcb
 
-# cp output/pcbs/left_pcb.kicad_pcb ../pcbs/left/left.kicad_pcb
-# cp output/pcbs/right_pcb.kicad_pcb ../pcbs/right/right.kicad_pcb
 
+# copy all except the last 3 lines of the ergogen generated pcbs to the kicad pcb file, then append the stuff from the saved tmp file
 head -n -3 output/pcbs/left_pcb.kicad_pcb > ../pcbs/left/left.kicad_pcb
 cat ../pcbs/left/traces-left.tmp >> ../pcbs/left/left.kicad_pcb
-
 head -n -3 output/pcbs/right_pcb.kicad_pcb > ../pcbs/right/right.kicad_pcb
 cat ../pcbs/right/traces-right.tmp >> ../pcbs/right/right.kicad_pcb
 
@@ -24,4 +23,4 @@ python ../utils/convert3d/stepToSTL.py -d -o ../case/pcbs ../case/pcbs/daughterb
 
 cp output/outlines/left_board.svg ../case/pcbs/left_pcb.svg
 cp output/outlines/right_board.svg ../case/pcbs/right_pcb.svg
-./generateOpenScad.sh > ../case/keys.scad
+./generateOpenscad.sh > ../case/keys.scad
