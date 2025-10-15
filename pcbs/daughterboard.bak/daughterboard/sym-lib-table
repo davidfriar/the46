@@ -1,0 +1,7 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Seeed_Studio_XIAO_Series")(type "KiCad")(uri "/home/david/projects/the46/pcbs/symbols/Seeed_Studio_XIAO_Series.kicad_sym")(options "")(descr ""))
+  (lib (name "jst-zh")(type "KiCad")(uri "/home/david/projects/the46/pcbs/symbols/jst-zh.kicad_sym")(options "")(descr ""))
+  (lib (name "FFC2B28-12-G")(type "KiCad")(uri "/home/david/projects/the46/pcbs/symbols/FFC2B28-12-G.kicad_sym")(options "")(descr ""))
+  (lib (name "nice_view")(type "KiCad")(uri "/home/david/projects/the46/pcbs/symbols/nice_view.kicad_sym")(options "")(descr ""))
+)

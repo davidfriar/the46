@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "seeed")(type "KiCad")(uri "/home/david/projects/the46/pcbs/footprints/seeed.pretty")(options "")(descr ""))
+)

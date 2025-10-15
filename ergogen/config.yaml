@@ -94,6 +94,10 @@ points:
       anchor:
         ref: fingers_index_top
         shift: [3kx/8, -ky/2]
+    mcu:
+      anchor:
+        ref: fingers_pinky_top
+        shift: [-kx, ky]
   mirror: &mirror
     ref: fingers_inner_top
     distance: 2.5kx
@@ -254,6 +258,13 @@ pcbs:
         where: left_connector
         adjust.shift: [3, 0]
         params.net: C6
+      display:
+        what: display_nice_view
+        where: display
+      mcu:
+        what: XiaoNrf52840plus
+        where: mcu
+    template: kicad8
   right_pcb:
     outlines:
       main:

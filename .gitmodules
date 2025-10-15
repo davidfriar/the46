@@ -1,0 +1,3 @@
+[submodule "ergogen/kicad_parser"]
+	path = ergogen/kicad_parser
+	url = https://github.com/realthunder/kicad_parser
