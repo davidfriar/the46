@@ -1,3 +1,6 @@
 [submodule "ergogen/kicad_parser"]
 	path = ergogen/kicad_parser
 	url = https://github.com/realthunder/kicad_parser
+[submodule "ergogen/footprints/ceoloide"]
+	path = ergogen/footprints/ceoloide
+	url = git@github.com:ceoloide/ergogen-footprints.git

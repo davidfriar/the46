@@ -1,8 +1,13 @@
 /ergogen/output
 /pcbs/right/right-backups
 /pcbs/left/left-backups
+/pcbs/mainboard/mainboard-backups
+/pcbs/daughterboard/daughterboard/daughterboard-backups
 *.lck
 *.stl
 /case/BOSL2
 *.tmp
 _autosave*
+fp-info-cache
+\#auto_saved_files#
+production/

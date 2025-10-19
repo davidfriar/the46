@@ -24,54 +24,53 @@ points:
         spread: 1kx
       columns:
         outerleft:
-          key.asym: source
+          key:
+            column_net: C1
+          rows.middle:
+            tags: left
           rows.bottom:
-            tags: large
+            tags: [large, left]
             adjust:
               rotate: 90
               shift: [0.5, -(0.25kx + 0.5)]
           rows.thumb.skip: true
-          key.column_net: C1
         outerright:
-          key.spread: 0
-          key.asym: clone
-          rows.top:
-            shift: [0, (0.25kx + 0.5)]
+          key:
+            spread: 0
+            column_net: C1
+          rows.top.skip: true
           rows.middle:
-            tags: large
+            tags: [large, right]
             shift: [0, (0.25kx + 0.5)]
             adjust:
               rotate: 90
               shift: [0.5, 0]
           rows.bottom:
+            tags: right
             shift: [0, -(0.5kx + 1)]
+            adjust:
+              rotate: 180
           rows.thumb.skip: true
-          key.mirror_column_net: C6
         pinky:
           key:
             stagger: pinky_stagger
             column_net: C2
-            mirror_column_net: C5
         ring:
           key:
             stagger: ring_stagger
             column_net: C3
-            mirror_column_net: C4
         middle:
           key:
             stagger: middle_stagger
             column_net: C4
-            mirror_column_net: C3
         index:
           key:
             stagger: index_stagger
             column_net: C5
-            mirror_column_net: C2
         inner:
           key:
             stagger: inner_stagger
             column_net: C6
-            mirror_column_net: C1
           rows.thumb.adjust:
             orient: -thumb_angle
             shift: [thumb_shift, -thumb_shift]
@@ -84,23 +83,6 @@ points:
           row_net: R3
         top:
           row_net: R4
-    left_connector:
-      key.asym: source
-      anchor:
-        ref: fingers_middle_top
-        shift: [11/16kx, 0]
-    right_connector:
-      key.asym: clone
-      anchor:
-        ref: fingers_index_top
-        shift: [3kx/8, -ky/2]
-    mcu:
-      anchor:
-        ref: fingers_pinky_top
-        shift: [-kx, ky]
-  mirror: &mirror
-    ref: fingers_inner_top
-    distance: 2.5kx
 outlines:
   keys:
     - what: rectangle
@@ -109,14 +91,14 @@ outlines:
     - what: rectangle
       where: large
       size: [1.5kx-0.5, ky-0.5]
-  left_plate:
+  plate:
     - what: rectangle
       where: /^fingers.*/
       size: [kx+2pp, ky+2pp]
       fillet: 1
     - what: rectangle
       where: [[/^fingers.*/, large]]
-      size: [1.5kx+2pp, ky+2pp]
+      size: [1.5kx+2pp, ky+3pp]
       fillet: 1
     - what: rectangle
       where: fingers_inner_bottom
@@ -128,33 +110,14 @@ outlines:
       where: /^fingers.*/
       size: [14, 14]
       operation: subtract
-  right_plate:
-    - what: rectangle
-      where: /^mirror.fingers.*/
-      size: [kx+2pp, ky+2pp]
-      fillet: 1
-    - what: rectangle
-      where: [[/^mirror.fingers.*/, large]]
-      size: [1.5kx+2pp, ky+2pp]
-      fillet: 1
-    - what: rectangle
-      where: mirror_fingers_inner_bottom
-      size: [kx+2pp, ky+2pp]
-      adjust:
-        shift: [0, -5]
-      fillet: 1
-    - what: rectangle
-      where: /^mirror.fingers.*/
-      size: [14, 14]
-      operation: subtract
-  left_board:
+  mainboard-outline:
     - what: rectangle
       where: [[/^fingers.*/, -large]]
       size: [kx, ky]
       fillet: 1
     - what: rectangle
       where: [[/^fingers.*/, large]]
-      size: [1.5kx, ky]
+      size: [1.5kx, ky+pp]
       fillet: 1
     - what: rectangle
       where: fingers_inner_bottom
@@ -162,195 +125,167 @@ outlines:
       adjust:
         shift: [0, -(ky-1)]
       fillet: 1
-  right_board:
-    - what: rectangle
-      where: [[/^mirror.fingers.*/, -large]]
-      size: [kx, ky]
-      fillet: 1
-    - what: rectangle
-      where: [[/^mirror.fingers.*/, large]]
-      size: [1.5kx, ky]
-      fillet: 1
-    - what: rectangle
-      where: mirror_fingers_inner_bottom
-      size: [kx, ky]
-      adjust:
-        shift: [0, -(ky-1)]
-      fillet: 1
   combo:
-    - name: left_plate
+    - name: plate
     - operation: stack
-      name: left_board
-    - operation: stack
-      name: right_plate
-    - operation: stack
-      name: right_board
-    - operation: stack
-      name: keys
+      name: mainboard-outline
 pcbs:
-  left_pcb:
+  mainboard:
     outlines:
       main:
-        outline: left_board
+        outline: mainboard-outline
     footprints:
       switch:
-        what: choc
-        where: /^fingers.*/
+        what: ceoloide/switch_choc_v1_v2
+        where: [[/^fingers.*/, -left, -right]]
         params:
-          keycaps: true
-          reverse: false
+          side: F
+          choc_v2_support: false
           hotswap: false
+          reversible: true
+          solder: true
+          include_corner_marks: true
+          switch_3dmodel_filename: "${KIPRJMOD}/../models/SW_Kailh_Choc_V1.wrl"
           from: "{{column_net}}"
           to: "{{colrow}}"
-      diode:
-        what: smdDiode
-        where: /^fingers.*/
+      switch-left:
+        what: ceoloide/switch_choc_v1_v2
+        where: [[/^fingers.*/, left]]
         params:
           side: B
-          from: "{{colrow}}"
-          to: "{{row_net}}"
-        adjust:
-          shift: [0, -5]
-      connector:
-        what: gctConnector
-        where: left_connector
-        params:
-          p1: GND
-          p2: R4
-          p3: R3
-          p4: R2
-          p5: R1
-          p6: C1
-          p7: C2
-          p8: C3
-          p9: C4
-          p10: C5
-          p11: C6
-          p12: GND
-          side: B
-      via1:
-        what: via
-        where: left_connector
-        adjust.shift: [0, 2.6]
-        params.net: C1
-      via2:
-        what: via
-        where: left_connector
-        adjust.shift: [0, 0]
-        params.net: C2
-      via3:
-        what: via
-        where: left_connector
-        adjust.shift: [1.5, 2.6]
-        params.net: C3
-      via4:
-        what: via
-        where: left_connector
-        adjust.shift: [1.5, 0]
-        params.net: C4
-      via5:
-        what: via
-        where: left_connector
-        adjust.shift: [3, 2.6]
-        params.net: C5
-      via6:
-        what: via
-        where: left_connector
-        adjust.shift: [3, 0]
-        params.net: C6
-      display:
-        what: display_nice_view
-        where: display
-      mcu:
-        what: XiaoNrf52840plus
-        where: mcu
-    template: kicad8
-  right_pcb:
-    outlines:
-      main:
-        outline: right_board
-    footprints:
-      switch:
-        what: choc
-        where: /^mirror.fingers.*/
-        params:
-          keycaps: true
-          reverse: false
+          choc_v2_support: false
           hotswap: false
-          from: "{{mirror_column_net}}"
-          to: "{{colrow}}"
-      diode:
-        what: smdDiode
-        where: /^mirror.fingers.*/
+          reversible: false
+          solder: true
+          include_corner_marks: true
+          switch_3dmodel_filename: "${KIPRJMOD}/../models/SW_Kailh_Choc_V1.wrl"
+          switch_3dmodel_xyz_rotation: [180, 0, 0]
+          switch_3dmodel_xyz_offset: [0, 0, -1.6]
+          from: "{{column_net}}"
+          to: "outer_{{row}}"
+      switch-right:
+        what: ceoloide/switch_choc_v1_v2
+        where: [[/^fingers.*/, right]]
         params:
-          side: B
+          side: F
+          choc_v2_support: false
+          hotswap: false
+          reversible: false
+          solder: true
+          include_corner_marks: true
+          switch_3dmodel_filename: "${KIPRJMOD}/../models/SW_Kailh_Choc_V1.wrl"
+          switch_3dmodel_xyz_rotation: [180, 0, 0]
+          switch_3dmodel_xyz_offset: [0, 0, -1.6]
+          from: "{{column_net}}"
+          to: "outer_{{row}}"
+      diode:
+        what: ceoloide/diode_tht_sod123
+        where: [[/^fingers.*/, -left, -right]]
+        params:
+          reversible: true
+          include_thru_hole_smd_pads: true
+          diode_3dmodel_filename: "${KICAD9_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.wrl"
+          diode_3dmodel_xyz_rotation: [180, 0, 0]
+          diode_3dmodel_xyz_offset: [0, 0, -1.6]
           from: "{{colrow}}"
           to: "{{row_net}}"
         adjust:
-          shift: [0, -5]
-      # connector:
-      #   what: gctConnector
-      #   where: mirror_fingers_middle_top
-      #   adjust:
-      #     shift: [11/16kx, ky/16]
-      #   params:
-      #     p1: GND
-      #     p2: R1
-      #     p3: R2
-      #     p4: R3
-      #     p5: R4
-      #     p6: C1
-      #     p7: C2
-      #     p8: C3
-      #     p9: C4
-      #     p10: C5
-      #     p11: C6
-      #     p12: GND
-      #     side: B
-      connector:
-        what: gctConnector
-        where: mirror_right_connector
+          shift: [3, -5.5]
+          rotate: 90
+      diode-outer-middle:
+        what: ceoloide/diode_tht_sod123
+        where: fingers_outerleft_middle
         params:
-          p1: GND
-          p2: R4
-          p3: R3
-          p4: R2
-          p5: R1
-          p6: C1
-          p7: C2
-          p8: C3
-          p9: C4
-          p10: C5
-          p11: C6
-          p12: GND
+          reversible: true
+          include_thru_hole_smd_pads: true
+          diode_3dmodel_filename: "${KICAD9_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.wrl"
+          diode_3dmodel_xyz_rotation: [180, 0, 0]
+          diode_3dmodel_xyz_offset: [0, 0, -1.6]
+          from: "outer_{{row}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [5, -8]
+          rotate: 90
+      diode-outer-bottom:
+        what: ceoloide/diode_tht_sod123
+        where: fingers_outerright_bottom
+        params:
+          reversible: true
+          include_thru_hole_smd_pads: true
+          diode_3dmodel_filename: "${KICAD9_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.wrl"
+          diode_3dmodel_xyz_rotation: [180, 0, 0]
+          diode_3dmodel_xyz_offset: [0, 0, -1.6]
+          from: "outer_{{row}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [-5, -8]
+          rotate: -90
+      connector:
+        what: gctConnector-reversible
+        where: fingers_middle_top
+        params:
+          P1: GND
+          P2: C1
+          P3: C2
+          P4: C3
+          P5: C4
+          P6: C5
+          P7: C6
+          P8: R1
+          P9: R2
+          P10: R3
+          P11: R4
+          P12: GND
           side: B
+        adjust:
+          shift: [-6.5, -7.5]
       via1:
         what: via
-        where: mirror_right_connector
-        adjust.shift: [0, 2.6]
+        where: fingers_middle_top
+        adjust.shift: [-11, -3.5]
         params.net: C1
       via2:
         what: via
-        where: mirror_right_connector
-        adjust.shift: [0, 0]
+        where: fingers_middle_top
+        adjust.shift: [-10, -3.5]
         params.net: C2
       via3:
         what: via
-        where: mirror_right_connector
-        adjust.shift: [-1.5, 2.6]
+        where: fingers_middle_top
+        adjust.shift: [-9, -3.5]
         params.net: C3
       via4:
         what: via
-        where: mirror_right_connector
-        adjust.shift: [-1.5, 0]
+        where: fingers_middle_top
+        adjust.shift: [-8, -3.5]
         params.net: C4
       via5:
         what: via
-        where: mirror_right_connector
-        adjust.shift: [-3, 2.6]
+        where: fingers_middle_top
+        adjust.shift: [-7, -3.5]
         params.net: C5
       via6:
         what: via
-        where: mirror_right_connector
-        adjust.shift: [-3, 0]
+        where: fingers_middle_top
+        adjust.shift: [-6, -3.5]
         params.net: C6
+      via7:
+        what: via
+        where: fingers_middle_top
+        adjust.shift: [-5, -3.5]
+        params.net: R1
+      via8:
+        what: via
+        where: fingers_middle_top
+        adjust.shift: [-4, -3.5]
+        params.net: R2
+      via9:
+        what: via
+        where: fingers_middle_top
+        adjust.shift: [-3, -3.5]
+        params.net: R3
+      via10:
+        what: via
+        where: fingers_middle_top
+        adjust.shift: [-2, -3.5]
+        params.net: R4
