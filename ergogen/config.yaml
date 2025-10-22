@@ -3,9 +3,9 @@ units:
   offset_y: -100
   kx: cx
   ky: cy
-  pp: 2
+  pp: 1.9999
   thumb_angle: 24
-  thumb_shift: 2.5
+  thumb_shift: 2.5001
   pinky_stagger: ky*1/8
   ring_stagger: ky*4/8
   middle_stagger: ky*1/8
@@ -93,7 +93,7 @@ outlines:
       size: [1.5kx-0.5, ky-0.5]
   plate:
     - what: rectangle
-      where: /^fingers.*/
+      where: [[/^fingers.*/, -right]]
       size: [kx+2pp, ky+2pp]
       fillet: 1
     - what: rectangle
@@ -106,6 +106,12 @@ outlines:
       adjust:
         shift: [0, -5]
       fillet: 1
+    - what: rectangle
+      where: fingers_inner_thumb
+      size: [kx+2pp, ky+2pp]
+      adjust:
+        shift: [-7, 0]
+      fillet: 5
     - what: rectangle
       where: /^fingers.*/
       size: [14, 14]
@@ -190,7 +196,7 @@ pcbs:
           from: "{{colrow}}"
           to: "{{row_net}}"
         adjust:
-          shift: [3, -5.5]
+          shift: [3, -3.5]
           rotate: 90
       diode-outer-middle:
         what: ceoloide/diode_tht_sod123
@@ -242,50 +248,50 @@ pcbs:
       via1:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-11, -3.5]
+        adjust.shift: [-9, -10.5]
         params.net: C1
       via2:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-10, -3.5]
+        adjust.shift: [-8, -10.5]
         params.net: C2
       via3:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-9, -3.5]
+        adjust.shift: [-7, -10.5]
         params.net: C3
       via4:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-8, -3.5]
+        adjust.shift: [-6, -10.5]
         params.net: C4
       via5:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-7, -3.5]
+        adjust.shift: [-5, -10.5]
         params.net: C5
       via6:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-6, -3.5]
+        adjust.shift: [-4, -10.5]
         params.net: C6
       via7:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-5, -3.5]
+        adjust.shift: [-8, -3.5]
         params.net: R1
       via8:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-4, -3.5]
+        adjust.shift: [-7, -3.5]
         params.net: R2
       via9:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-3, -3.5]
+        adjust.shift: [-6, -3.5]
         params.net: R3
       via10:
         what: via
         where: fingers_middle_top
-        adjust.shift: [-2, -3.5]
+        adjust.shift: [-5, -3.5]
         params.net: R4
