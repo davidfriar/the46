@@ -30,9 +30,9 @@ function translate_key(key) =
   object(key, x=key.x - key_offset_x, y= key.y + key_offset_y);
   
 
-function find_key_by_name(name) =
+function find_key_by_name(name, all=false) =
   let (pred = function(key) key.name == name)
-  let (keys = key_points($side))
+  let (keys = all? all_keys : key_points($side))
   translate_key(keys[find_first(pred, keys)]);
 
 

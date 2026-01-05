@@ -9,7 +9,7 @@ include <keys.scad>
 
 $fn = 32;
 
-$side = "left";
+$side = "left"; 
 pcb_thickness=1.6;
 plate_thickness = 1.2;
 plate_width=116.266;
@@ -22,7 +22,7 @@ pcb_hole_depth = 4;
 infinitesmal = 0.0001;
 
 gasket_width = 3.5;
-gasket_thickness = 1.9; // gasket thickness when compressed
+gasket_thickness = 2; // gasket thickness when compressed
 
 
 tilt= 4.5;
@@ -43,12 +43,13 @@ daughterboard_clearance = 0.5;
 reset_button_position = [daughterboard_position.x - 0.5, daughterboard_position.y - 10.5];
 
 lid_wall_thickness=2;
+lid_ceiling_thickness=2.5;
 lid_clearance=0.25;
 lid_width=base_width + 2 * (lid_wall_thickness+lid_clearance);
 lid_height=base_height + 2 * (lid_wall_thickness+lid_clearance);
 lid_min_thickness = 13; // to do : work this out properly 
 lid_max_thickness = base_min_thickness + sin(tilt) * lid_height;
-lid_top = up(lid_clearance+lid_wall_thickness+plate_thickness + 2*gasket_thickness, base_top); 
+lid_top = up(lid_ceiling_thickness+plate_thickness + 2*gasket_thickness, base_top); 
 
 screw_hole_diameter = 2.4;
 screw_hole_countersink_diameter = 4;
@@ -72,11 +73,28 @@ usb_hole_position = [0, lid_height/2-0.1 , 7.8];
 display_size = [32, 14, 0.75];
 screen_size = [25.3, 10.8, 0.01];
 screen_offset = 1.65;
-display_position = [-30, lid_height/2-1, 8];
 
+function display_position() = 
+  let (x = $side == "left" ? -30 : 30)
+  [x, lid_height/2 - 1, 8];
+
+
+function battery_position() = 
+  let (x = $side == "left" ?27 : -27)
+  [x,30, 1];
+
+// magsafe_ring();
+lid();
 base();
-move([30, 25, 1 ]) battery();
+// color("red") move(battery_position()) battery();
+// lid();
+// move(display_position())displayboard();
+// up(lid_top.z - lid_wall_thickness) xrot(tilt)  mounted_plate();
 
+// move([30, 25, 1 ]) battery();
+
+// lid();
+// move(display_position)displayboard();
 
 module all() {
   left(100) left_case();
@@ -107,10 +125,10 @@ module lid(){
     up(lid_top.z - lid_wall_thickness) xrot(tilt) keyboard_hole();
     move(usb_hole_position) usb_hole();
     move([0, usb_hole_position.y, 0]) usb_cutout();
-    move(display_position) back(1)  display_hole();
-
+    move(display_position()) back(1)  display_hole();
   }
   insert_hole_mounts();
+  move(display_position())display_clip();
 
 }
 
@@ -176,7 +194,8 @@ module base(){
           force_tag("remove") pcb_hole();
       }
 
-    tag("remove") move([30, 25, 1 ]) battery_hole();
+    tag("remove") move(battery_position()) battery_hole();
+    tag("remove") move(display_position()) base_display_hole();
     translate(daughterboard_position) {
       tag("remove") daughterboard_hole();
       tag("keep")   daughterboard_lip();
@@ -184,10 +203,11 @@ module base(){
     } 
     translate(reset_button_position) tag("remove") reset_button_hole();
     
-    *up(lid_top.z - lid_wall_thickness) xrot(tilt)  mounted_plate();
+    up(lid_top.z - lid_wall_thickness) xrot(tilt)  mounted_plate();
 
     tag("remove") screw_holes(); 
     tag("keep") move([0, usb_hole_position.y - 0.1, 0]) usb_support();
+    tag("remove") magsafe_ring(); 
   } 
 }
 
@@ -240,11 +260,12 @@ module daughterboard_lip(){
 }
 
 module battery(){
-  color("red") cuboid([33, 17, 6], anchor=BOTTOM );
+  color("red") cuboid([33, 17, 6.5], anchor=BOTTOM );
 }
 
 module battery_hole(){
-  cuboid([40, 18, 9], anchor=BOTTOM, rounding=1, except=[TOP, LEFT] );
+  except = $side=="left" ? [TOP, LEFT] : [TOP, RIGHT];
+  cuboid([35, 18, 8], anchor=BOTTOM, rounding=1, except=except );
 }
 
 module usb_hole() {
@@ -330,12 +351,11 @@ module gaskets() {
   ];
 
   function to_point(p) = 
-    let (key = find_key_by_name(p[0]))
+    let (key = find_key_by_name(p[0], all=true))
     let (point =  [key.x, key.y])
     let (rotation = key.rotation == 90 ? 0 : key.rotation)
-    let (shift = zrot(rotation, [p[1], p[2]]))
+    let (shift = is_def(key) ? zrot(rotation, [p[1], p[2]]): key)
     move(shift, point);
-    // right(0, back(0, point));
 
   for(position = positions){
     from = to_point(position[0]);
@@ -409,7 +429,7 @@ module daughterboard_outline(){
 module plate( anchor=CENTER,spin=0,orient=UP){
   // attachable(anchor = anchor, spin = spin, orient = orient){
     mirror_if_right() linear_extrude(height = plate_thickness, center = false) plate2d(); 
-    *down(plate_gap+pcb_thickness){
+    down(plate_gap+pcb_thickness){
       mainboard();
     }
   //
@@ -428,9 +448,22 @@ module display_hole(){
   clearance = 0.5;
   xrot(-90){
     left(screen_offset) rounded_prism(rect([screen_size.x, screen_size.y]), height= lid_wall_thickness + infinitesmal, anchor=TOP, joint_top=-1, joint_sides=1, joint_bot=0);
-    right(1) down(lid_wall_thickness) cuboid([display_size.x+clearance + 2, display_size.y+clearance, 5], anchor=TOP, rounding = 1, except=[TOP, BOTTOM]);
+    right(1) down(lid_wall_thickness-1) cuboid([display_size.x+clearance + 2, display_size.y+clearance, 5], anchor=TOP, rounding = 1, except=[TOP, BOTTOM]);
   }
 
+}
+
+module base_display_hole(){
+  width = display_size.x + 2.5;
+  right(1) {
+    cuboid([width, 4.5, 14] , anchor=BACK, rounding = 1);
+  }
+  offset3d(r = 0.25) display_clip(); 
+}
+
+module display_clip(){
+    fwd(3) cuboid([8, 2,14.5 ], anchor=BACK, rounding=1, except=TOP);
+    fwd(1) up(9.25) cuboid([8, 4,4 ], anchor=BACK, rounding=1, except=[BOTTOM, BACK]);
 }
 
 module switches() {
@@ -491,6 +524,14 @@ module plate_outline2d(){
   left(plate_width/2) fwd(plate_height/2) import("models/plate_outline.svg");
 }
 
+module magsafe_ring(){
+  inwards(kx) fwd(ky*3/8) down(infinitesmal) linear_extrude(height = 0.5) difference(){
+    circle(d=58);
+    circle(d=44.5);
+
+  }
+
+  }
 
 
 
